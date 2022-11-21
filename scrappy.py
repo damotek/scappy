@@ -18,6 +18,7 @@ def main():
     with con:
         con.execute("""
             CREATE TABLE IF NOT EXISTS casas (
+                    id TEXT PRIMARY KEY,
                     name TEXT,
                     tipologia TEXT,
                     location TEXT,
@@ -28,7 +29,7 @@ def main():
             );""")
 
     while(True):
-        finderSapo(con)
+        #finderSapo(con)
         finderImovirtual(con)
         time.sleep(30)
 
@@ -36,6 +37,7 @@ def dbCreate(con):
     with con:
         con.execute("""
             CREATE TABLE casas (
+                    id TEXT PRIMARY KEY
                     name TEXT,
                     tipologia TEXT,
                     location TEXT,
@@ -58,6 +60,7 @@ def finderSapo(con):
         size_element = result.find("div", class_="property-features-text")
         link_element = result.find('a',href=True)
         insert(con=con,
+                id = tipologia_element.text,
                 name=tipologia_element.text.split()[1],
                 location=location_element.text.split()[0],
                 price=price_element.text,
@@ -74,14 +77,18 @@ def finderImovirtual(con):
 
     for result in results:
         title_element = result.find("span", class_="offer-item-title")
-        location_element = result.find("span", class_="hidden-xs")
+        location_element = result.find("p", class_="text-nowrap")
+        location = location_element.text[location_element.text.rfind(":")+1:location_element.text.rfind(",")]
+
         price_element = result.find("li", class_="offer-item-price")
         tipologia_element = result.find("li", class_="offer-item-rooms hidden-xs")
         size_element = result.find("li", class_="hidden-xs offer-item-area")
         link_element= result['data-url']
+        id = link_element[link_element.rfind("ID"):link_element.rfind(".")]
         insert(con=con,
+                id=id,
                 name=title_element.text,
-                location=location_element.text,
+                location=location,
                 price=price_element.text.split()[0]+"",
                 tipologia=tipologia_element.text,
                 size=size_element.text,
@@ -117,27 +124,28 @@ def isInTable(db,data):
         if(row[0:-1] == data[0][0:-1]):
             return True
 
-    print(result)
-    print(data)
+    #print(result)
+    #print(data)
     return False
 
 
 #,price,size,site,link
-def insert(con,name,location,price,size,site,link,tipologia):
+def insert(con,id, name,location,price,size,site,link,tipologia):
     #if (not isInTable(con,data)):
     #    print("Nova Casa")
-    sql = 'INSERT INTO casas (name, tipologia, location, price, size, site, link) values(?, ?, ?, ?, ?, ?, ?)'
+    sql = 'INSERT OR IGNORE INTO casas (id, name, tipologia, location, price, size, site, link) values(?, ?, ?, ?, ?, ?, ?, ?) '
     data = [
-        (name, tipologia, location, price, size, site, link)
+        (id, name, tipologia, location, price, size, site, link)
     ]
     if (not isInTable(con,data)):
-        #print("Nova Casa")
+        print("Nova Casa")
         with con:
             con.executemany(sql, data)
-        #printLine(name,location,price,size,site,link,tipologia)
+        printLine(id,name,location,price,size,site,tipologia)
     
-def printLine(name,location,price,size,site,link,tipologia):
-    print("| "+tipologia+" | "+price+" | "+name+" | "+location+" | "+price+" | "+location)
+def printLine(id, name,location,price,size,site,tipologia):
+    print(id+ " | "+tipologia+" | "+price+" | "+name+" | "+location+" | "+price+" | "+location)
+
 
 if __name__ == "__main__":
     main()
