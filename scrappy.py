@@ -6,7 +6,7 @@ from selenium import webdriver
 import json
 import http.client
 
-CORE_LINK = "http://127.0.0.1:8080/api/propertie"
+CORE_LINK = "http://127.0.0.1:8080/propertie"
 CHAT_ID = "-1001671165112"
 API_KEY = "5778738247:AAER8-DAa5UkRC5vQvjdmSNDewoJHiQbdv4"
 
@@ -24,7 +24,7 @@ TELEGRAM_TOKEN = "5778738247:AAER8-DAa5UkRC5vQvjdmSNDewoJHiQbdv4"
 
 def main():
 
-    for i in range(100):
+    for i in range(100000000):
         finderImovirtual(i)
 
 
@@ -93,7 +93,7 @@ def finderImovirtual(page):
         print("area :"+ size_element.text[0:2])
         print("----------------")
 
-        headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
+        headers = {'Content-type': 'application/json'}
         bodycontent = {
                 'price': int(final_price),
                 'countie':countie,
@@ -103,9 +103,8 @@ def finderImovirtual(page):
                 'link': link_element,
                 'provider': "IMOVIRTUAL",
                 'area':size_element.text[0:2]}
-        url = 'http://127.0.0.1:8080/api/propertie'
+        url = 'http://127.0.0.1:8080/propertie'
         requests.put(url, json=bodycontent, headers=headers, params= bodycontent)
-        #print(connection.getresponse())
 
 
 
