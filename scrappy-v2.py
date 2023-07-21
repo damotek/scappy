@@ -8,7 +8,7 @@ import http.client
 import ssl
 import urllib.request
 
-CORE_LINK = "http://localhost:8080/propertie"
+CORE_LINK = "https://pt-houseid-core.onrender.com/propertie"
 CHAT_ID = "-1001671165112"
 API_KEY = "5778738247:AAER8-DAa5UkRC5vQvjdmSNDewoJHiQbdv4"
 
@@ -52,7 +52,6 @@ def finderImovirtual(page):
     results = soup.find_all("article", class_="offer-item")
     print("aqui")
     for result in results:
-        print("aqui")
         title_element = result.find("span", class_="offer-item-title")
         location_element = result.find("p", class_="text-nowrap")
         countie = location_element.text[location_element.text.rfind(":")+1:location_element.text.rfind(",")]
@@ -60,8 +59,6 @@ def finderImovirtual(page):
 
         price_element = result.find("li", class_="offer-item-price")
         tipologia_element = result.find("li", class_="offer-item-rooms hidden-xs")
-        ncbanho = result.find("li", class_="params-small clearfix hidden-xs")
-        print(ncbanho.text)
         size_element = result.find("li", class_="hidden-xs offer-item-area")
         link_element= result['data-url']
         imgs = result.find_all('img')
@@ -76,16 +73,17 @@ def finderImovirtual(page):
         img_link2 = ''
         for image_link in image_links:
             # Extract the image link
+            img_link = image_link["data-quick-gallery"]
+            img_link = img_link.split('photo":"')[1].split('","thumb"')[0]
 
-            try:
-                img_link = image_link["data-quick-gallery"] 
-                img_link = img_link.split('photo":"')[1].split('","thumb"')[0]
-                img_name = img_link.split("/")[-1]
-                img_link = fix_link(img_link)
-                img_link2 = img_link 
-            except KeyError:
-                img_link2 = ""
+            # Extract the image name
+            img_name = img_link.split("/")[-1]
 
+            img_link = fix_link(img_link)
+            img_link2 = img_link 
+            #print("Image Link:", img_link)
+            #print("Image Name:", img_name)
+            #print("-------------------")
 
         
         final_price = price_element.text.split()[0]+""+price_element.text.split()[1]
@@ -115,9 +113,8 @@ def finderImovirtual(page):
                 'provider': "IMOVIRTUAL",
                 'images': img_link2,
                 'area':size_element.text[0:3]}
-        url = '127.0.0.1:8080/propertie'
+        url = 'https://pt-houseid-core.onrender.com/propertie'
         requests.put(CORE_LINK, json=bodycontent, headers=headers, params= bodycontent)
-        print("aquiasd")
 
 
 def fix_link(link):
